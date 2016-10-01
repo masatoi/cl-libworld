@@ -6,7 +6,7 @@ git clone in your local-projects directory.
 
 #+BEGIN_SRC sh
 cd ~/quicklisp/local-projects
-git clone https;//www. ...
+git clone https://github.com/masatoi/cl-libworld.git
 #+END_SRC
 
 then, quickload in lisp.
