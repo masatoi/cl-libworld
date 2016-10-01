@@ -1,0 +1,75 @@
+;;; -*- coding:utf-8; mode:lisp; -*-
+
+(defpackage :lake-user
+  (:use :cl :lake :cl-syntax)
+  (:shadowing-import-from :lake :directory))
+
+(in-package :lake-user)
+
+(use-syntax :interpol)
+
+;; Build parameters
+(defparameter cxx  "g++")
+(defparameter cxx-flags "-O1 -g -Wall -fPIC")
+(defparameter out-dir  "./build")
+(defparameter objs
+  (list #?"${out-dir}/objs/cheaptrick.o"
+        #?"${out-dir}/objs/common.o"
+        #?"${out-dir}/objs/d4c.o"
+        #?"${out-dir}/objs/dio.o"
+        #?"${out-dir}/objs/fft.o"
+        #?"${out-dir}/objs/matlabfunctions.o"
+        #?"${out-dir}/objs/stonemask.o"
+        #?"${out-dir}/objs/synthesis.o"
+        #?"${out-dir}/objs/synthesisrealtime.o"))
+
+;; Tasks
+
+;; (file "hello" ("hello.o" "message.o")
+;;   (sh #?"${cc} -o hello hello.o message.o"))
+
+;; (file "hello.o" ("hello.c")
+;;   (sh #?"${cc} -c hello.c"))
+
+;; (file "message.o" ("message.c")
+;;   (sh #?"${cc} -c message.c"))
+
+;; (task "clean" ()
+;;   (sh "rm -rf hello hello.o message.o"))
+
+;; (task "say-hello" ()
+;;   (echo "Hello world!"))
+
+(file "audioio.so" ()
+  (sh #?"${cxx} ${cxx-flags} -shared -o ./build/audioio.so ./test/audioio.cpp -lm"))
+
+(file "libworld.so" ("cheaptrick.o" "common.o" "d4c.o" "dio.o" "fft.o"
+                     "matlabfunctions.o" "stonemask.o" "synthesis.o" "synthesisrealtime.o")
+  (sh #?"${cxx} ${cxx-flags} -shared -o ./build/libworld.so @{objs}"))
+
+(file "cheaptrick.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/cheaptrick.o -c ./src/cheaptrick.cpp"))
+
+(file "common.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/common.o -c ./src/common.cpp"))
+
+(file "d4c.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/d4c.o -c ./src/d4c.cpp"))
+
+(file "dio.o" () 
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/dio.o -c ./src/dio.cpp"))
+
+(file "fft.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/fft.o -c ./src/fft.cpp"))
+
+(file "matlabfunctions.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/matlabfunctions.o -c ./src/matlabfunctions.cpp"))
+
+(file "stonemask.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/stonemask.o -c ./src/stonemask.cpp"))
+
+(file "synthesis.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/synthesis.o -c ./src/synthesis.cpp"))
+
+(file "synthesisrealtime.o" ()
+  (sh #?"${cxx} ${cxx-flags} -I./src -o ./build/objs/synthesisrealtime.o -c ./src/synthesisrealtime.cpp"))
