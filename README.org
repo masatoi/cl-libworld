@@ -32,15 +32,21 @@ then, quickload in lisp.
 
 WORLD-WAV structure contains frame rate, number of bits for quantization, and body data.
 Next plot is the body data of in-wav and out-wav.
+
 [[./docs/img/world-in-out.png]]
 
 WORLD-PARAMS structure contains F0 (Pitch contour), spectrogram, aperiodicity and other several parameters which can be specified by WORLD:ANALYSIS keyword options.
 
 Next plot is the F0 in this case,
+
 [[./docs/img/world-f0.png]]
+
 spectrogram,
+
 [[./docs/img/world-spectrogram.png]]
+
 and aperiodicity.
+
 [[./docs/img/world-aperiodicity.png]]
 
 And out-wav in the first plot is synthesized using these parameters.
