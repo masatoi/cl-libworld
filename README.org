@@ -1,0 +1,52 @@
+* cl-libworld 
+cl-libworld is a simple Common Lisp wrapper to use speech analysis library WORLD (https://github.com/mmorise/World). 
+
+** Installation
+git clone in your local-projects directory.
+
+#+BEGIN_SRC sh
+cd ~/quicklisp/local-projects
+git clone https;//www. ...
+#+END_SRC
+
+then, quickload in lisp.
+
+#+BEGIN_SRC lisp
+(ql:quickload :cl-libworld)
+#+END_SRC
+
+** Example
+#+BEGIN_SRC lisp
+; Load source WAV file and make a WORLD-WAV structure
+(defparameter in-wav (world:make-world-wav-from-file "/home/wiz/cl-libworld/lib/World/test/vaiueo2d.wav"))
+
+; Analyze in-wav and make a WORLD-PARAMS structure
+(defparameter params (world:analysis in-wav))
+
+; Synthesize speech using params
+(defparameter out-wav (world:synthesis params))
+
+; Output synthesized speech to a file
+(world:output-world-wav-to-file out-wav "/home/wiz/tmp/vaiueo2d-out.wav")
+#+END_SRC
+
+WORLD-WAV structure contains frame rate, number of bits for quantization, and body data.
+Next plot is the body data of in-wav and out-wav.
+[[./docs/img/world-in-out.png]]
+
+WORLD-PARAMS structure contains F0 (Pitch contour), spectrogram, aperiodicity and other several parameters which can be specified by WORLD:ANALYSIS keyword options.
+
+Next plot is the F0 in this case,
+[[./docs/img/world-f0.png]]
+spectrogram,
+[[./docs/img/world-spectrogram.png]]
+and aperiodicity.
+[[./docs/img/world-aperiodicity.png]]
+
+And out-wav in the first plot is synthesized using these parameters.
+
+** Author
+Satoshi Imai (satoshi.imai@gmail.com)
+
+** License
+Modified-BSD license
