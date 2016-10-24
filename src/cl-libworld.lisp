@@ -2,9 +2,21 @@
 
 (defpackage cl-libworld
   (:use :cl :cffi)
-  (:export :make-world-wav :make-world-params
-           :make-world-wav-from-file :output-world-wav-to-file
-           :analysis :synthesis)
+  (:export :make-world-wav :world-wav-fs :world-wav-nbit :world-wav-data
+           :make-world-wav-from-file
+           :make-world-params
+           :world-params-fs
+           :world-params-nbit
+           :world-params-frame-period
+           :world-params-speed
+           :world-params-f0-floor
+           :world-params-allowed-range
+           :world-params-q1
+           :world-params-f0
+           :world-params-spectrogram
+           :world-params-aperiodicity
+           :output-world-wav-to-file
+           :analysis :synthesis :fft-size :n-frames)
   (:nicknames :world))
 
 (in-package :cl-libworld)
@@ -223,6 +235,20 @@
 ;;   // The value from 0.02 to 0.2 would be reasonable.
 ;;   option.allowed_range = 0.1;
 
+;; // This value may be better one for HMM speech synthesis.
+;; // Default value is -0.09.
+;; option.q1 = -0.15;
+
+;; // Important notice (2016/02/02)
+;; // You can control a parameter used for the lowest F0 in speech.
+;; // You must not set the f0_floor to 0.
+;; // It will cause a fatal error because fft_size indicates the infinity.
+;; // You must not change the f0_floor after memory allocation.
+;; // You should check the fft_size before excucing the analysis/synthesis.
+;; // The default value (71.0) is strongly recommended.
+;; // On the other hand, setting the lowest F0 of speech is a good choice
+;; // to reduce the fft_size.
+
 (defun test ()
   (with-foreign-string (s (format nil "~A~A"
                                   (asdf:system-source-directory :cl-libworld)
@@ -346,7 +372,7 @@
         (wavread s fs nbit x)
         (let ((wav (make-world-wav :fs (mem-ref fs :int)
                                    :nbit (mem-ref nbit :int)
-                                   :data (make-array len :element-type 'double))))
+                                   :data (make-array len :element-type 'double-float))))
           (loop for i from 0 to (1- len) do
             (setf (aref (world-wav-data wav) i)
                   (mem-aref x :double i)))
@@ -492,6 +518,12 @@
       
       out-wav)))
 
+(defun fft-size (params)
+  (array-dimension (world-params-spectrogram params) 1))
+
+(defun n-frames (params)
+  (array-dimension (world-params-spectrogram params) 0))
+
 ;; ;; 'git clone https://github.com/masatoi/clgplot' in your local-projects directory
 ;; (ql:quickload :clgplot)
 
@@ -517,3 +549,9 @@
 ;;  :output "/home/wiz/tmp/world-in-out.png")
 
 ;; (output-world-wav-to-file out-wav "/home/wiz/tmp/vaiueo2d-out.wav")
+
+(defun in-out (in out)
+  (let* ((in-wav (make-world-wav-from-file in))
+         (params (analysis in-wav))
+         (out-wav (synthesis params)))
+    (output-world-wav-to-file out-wav out)))
